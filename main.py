@@ -29,11 +29,14 @@ def strtoint(in_str):
 
 def create_func(in_str):
     nums_in_eq = []
+    vars_in_eq = []
     working_num = ""
     for i in range(len(in_str)):
         curr_state = 46 < ord(in_str[i]) < 58
         if curr_state:
             working_num += in_str[i]
+        elif in_str[i].isalpha():
+            vars_in_eq.append(str(working_num)+in_str[i])
         else:
             nums_in_eq.append(strtoint(working_num))
             working_num = ""
@@ -48,26 +51,28 @@ def automate_latex(in_str):
     holder = ""
     finished = False
     needs_two_num = False
+    found_pair = True
     for letter in in_str:
         curr_state = 47 < ord(letter) < 58
         with_var = False
-        if letter.isalpha():
-            with_var = True
-        else:
-            with_var = False
-        if curr_state:
-            finished = False
-            working_num += letter
-        else:
-            finished = True
-            nums_in_eq.append(strtoint(working_num))
-            if not needs_two_num:
-                holder = working_num+letter if with_var else working_num
+        if found_pair:
+            if letter.isalpha():
+                with_var = True
             else:
-                holder += working_num + '}'
-                needs_two_num = False
-            working_num = "" if not with_var else holder
-        if not with_var:
+                with_var = False
+            if curr_state:
+                finished = False
+                working_num += letter
+            else:
+                finished = True
+                nums_in_eq.append(strtoint(working_num))
+                if not needs_two_num:
+                    holder = working_num+letter if with_var else working_num
+                else:
+                    holder += working_num + '}'
+                    needs_two_num = False
+                working_num = "" if not with_var else holder
+        if not with_var and found_pair:
             match letter, finished, needs_two_num:
                 case '/', True, _:
                     needs_two_num = True
@@ -78,11 +83,26 @@ def automate_latex(in_str):
                 case '^', True, _:
                     needs_two_num = True
                     holder += letter + '{'
+                case '(', _, _:
+                    print("Is executed")
+                    tempacc = ""
+                    for i in range(len(in_str)):
+                        if in_str[i]=='(':
+                            j = i
+                            while in_str[j] != ')':
+                                j += 1
+                                tempacc += in_str[j]
+                    print(tempacc)
+                    working_num += "\left("+ automate_latex(tempacc)
+                    found_pair = False
+                    print(holder)
                 case _, True, _:
                     acc += holder + format_as(letter) if letter != ';'else holder
                     holder = ""
                 case ';', _, _:
                     break
+        if letter == ')':
+            found_pair = True
     return acc
 
 def format_as (letter):
