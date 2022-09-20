@@ -84,7 +84,6 @@ def automate_latex(in_str):
                     needs_two_num = True
                     holder += letter + '{'
                 case '(', _, _:
-                    print("Is executed")
                     tempacc = ""
                     for i in range(len(in_str)):
                         if in_str[i]=='(':
@@ -92,10 +91,8 @@ def automate_latex(in_str):
                             while in_str[j] != ')':
                                 j += 1
                                 tempacc += in_str[j]
-                    print(tempacc)
                     working_num += "\left("+ automate_latex(tempacc)
                     found_pair = False
-                    print(holder)
                 case _, True, _:
                     acc += holder + format_as(letter) if letter != ';'else holder
                     holder = ""
